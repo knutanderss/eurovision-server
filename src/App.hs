@@ -19,12 +19,15 @@ import           Database.Persist.Sqlite        ( ConnectionPool
 import           Data.String.Conversions        ( cs )
 import           Data.Text                      ( Text )
 import           Network.Wai.Handler.Warp      as Warp
-
+import           Control.Applicative
 import           Servant
-
+import           Data.Maybe
+import           System.Environment
+import           Safe
 
 import           Api
 import           Models
+
 
 server :: ConnectionPool -> Server Api
 server pool = userAddH :<|> userGetH
@@ -34,7 +37,7 @@ server pool = userAddH :<|> userGetH
 
   userAdd :: User -> IO (Maybe (Key User))
   userAdd newUser = flip runSqlPersistMPool pool $ do
-    exists <- selectFirst [UserName ==. (userName newUser)] []
+    exists <- selectFirst [UserName ==. userName newUser] []
     case exists of
       Nothing -> Just <$> insert newUser
       Just _  -> return Nothing
@@ -55,4 +58,10 @@ mkApp sqliteFile = do
   return $ app pool
 
 run :: FilePath -> IO ()
-run sqliteFile = Warp.run 3000 =<< mkApp sqliteFile
+run sqliteFile = do 
+  port <- lookupPort
+  Warp.run port =<< mkApp sqliteFile
+
+lookupPort :: IO Int
+lookupPort =
+  (readDef 3000 . fromMaybe "3000") <$> lookupEnv "PORT" 

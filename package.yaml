@@ -28,19 +28,11 @@ dependencies:
   - persistent-sqlite
   - servant
   - servant-server
-  - servant-client
   - string-conversions
   - text
-  - transformers
   - wai
   - warp
-  - hspec
-  - http-client
-  - mockery
-  - http-types
-
-library:
-  source-dirs: lib
+  - safe
 
 executables:
   eurovision:
@@ -50,8 +42,6 @@ executables:
       - -threaded
       - -rtsopts
       - -with-rtsopts=-N
-    dependencies:
-      - eurovision
 
 tests:
   spec:
@@ -69,4 +59,8 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - eurovision
+      - hspec
+      - http-client
+      - mockery
+      - servant-client
+      - transformers
